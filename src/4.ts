@@ -12,11 +12,16 @@
 
 // Наприклад, ось так:
 
+interface IKey {
+  signature: number;
+  getSignature(): number;
+}
+
 abstract class House {
   protected tenats: object[] = [];
   protected door: boolean;
-  protected key: object;
-  constructor(key: object) {
+  protected key: IKey;
+  constructor(key: IKey) {
     this.key = key;
     this.door = false;
   }
@@ -25,21 +30,25 @@ abstract class House {
     if (this.door) {
       this.tenats.push(person);
     }
-    return [];
+    return [...this.tenats];
   }
-  public openDoor(key: object): void {}
+  public abstract openDoor(key: IKey): void;
 }
 
 class MyHouse extends House {
-  public openDoor(key: object): void {
-    if (Object.values(this.key)[0] === Object.values(key)[0]) {
-      this.door = true;
+  public openDoor(key: IKey): void {
+    if ("signature" in this.key || "signature" in key) {
+      if (this.key.signature === key.signature) {
+        this.door = true;
+      } else {
+        this.door = false;
+      }
     }
   }
 }
 
-class Key {
-  private signature: number;
+class Key implements IKey {
+  signature: number;
   constructor() {
     this.signature = Math.floor(Math.random() * (10 - 1) + 1);
   }
@@ -49,11 +58,11 @@ class Key {
 }
 
 class Person {
-  private key: object;
-  constructor(key: object) {
+  private key: IKey;
+  constructor(key: IKey) {
     this.key = key;
   }
-  public getKey(): object {
+  public getKey(): IKey {
     return this.key;
   }
 }
